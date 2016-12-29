@@ -369,6 +369,22 @@ describe('def', function() {
     eq(add($.__, 1)(42, $.__)(2), 43);
   });
 
+
+  it('allows arrow functions', function() {
+    var def = $.create({checkTypes: false, env: $.env});
+
+    //  add :: Number -> Number -> Number -> Number
+    var add =
+    def('add',
+        {},
+        [$.Number, $.Number, $.Number],
+        (x, y) => x + y);
+        // function(x, y) { return x + y; });
+
+    eq(add(42, 1), 43);
+    eq(add(42)(1), 43);
+  });
+
   it('returns a function whose length matches that of given list', function() {
     eq($0.length, 0);
     eq($1.length, 1);
