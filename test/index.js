@@ -336,6 +336,39 @@ describe('def', function() {
     eq(add({foo: 42}, 'XXX'), '[object Object]XXX');
   });
 
+  it('does type check its arguments when checkTypes is true', function() {
+    var def = $.create({checkTypes: true, env: $.env});
+
+    //  add :: Number -> Number -> Number -> Number
+    var add =
+    def('add',
+        {},
+        [$.Number, $.Number, $.Number, $.Number],
+        function(x, y, z) { return x - y + z; });
+
+    eq(add(42, 1, 2), 43);
+    eq(add(42, 1)(2), 43);
+    eq(add(42)(1, 2), 43);
+    eq(add(42)(1)(2), 43);
+
+    eq(add($.__, 1, 2)(42), 43);
+    eq(add(42, $.__, 2)(1), 43);
+    eq(add(42, 1, $.__)(2), 43);
+
+    eq(add($.__, $.__, 2)(42, 1), 43);
+    eq(add($.__, $.__, 2)(42)(1), 43);
+    eq(add($.__, 1, $.__)(42)(2), 43);
+    eq(add($.__, $.__, 2)(42, 1), 43);
+    eq(add($.__, $.__, 2)(42)(1), 43);
+
+    eq(add($.__, $.__, $.__)(42)(1)(2), 43);
+
+    eq(add($.__, 1)(42)(2), 43);
+    eq(add($.__, 1)(42, 2), 43);
+    eq(add($.__, 1)($.__, 2)(42), 43);
+    eq(add($.__, 1)(42, $.__)(2), 43);
+  });
+
   it('returns a function whose length matches that of given list', function() {
     eq($0.length, 0);
     eq($1.length, 1);
