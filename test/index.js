@@ -385,6 +385,58 @@ describe('def', function() {
     eq(add(42)(1), 43);
   });
 
+
+  it('allows curried functions', function() {
+    var def = $.create({checkTypes: false, env: $.env});
+
+    //  add :: Number -> Number -> Number -> Number
+    var add =
+    def('add',
+        {},
+        [$.Number, $.Function([])],
+        x => y => x + y);
+        // function(x, y) { return x + y; });
+
+    eq(add(42)(1), 43);
+  });
+
+
+  it('allows mixing uncurried and curried functions', function() {
+    var def = $.create({checkTypes: false, env: $.env});
+
+    //  add :: Number -> Number -> Number -> Number
+    var add =
+    def('add',
+        {},
+        [$.Number, $.Number, $.Function([])],
+        (x, y) => z => x + y + z);
+
+    eq(add(42, 1)(-3), 40);
+  });
+
+
+  it('disallows curried functions with invalid argment type declaration', function() {
+    var def = $.create({checkTypes: false, env: $.env});
+
+    throws( () => { def('addInvalid',
+                        {},
+                        [$.Number, $.Number, $.Number, $.Number],
+                        (x, y) => z => x + y + z);
+            },
+            TypeError,
+            'Invalid value\n' +
+             '\n' +
+             'create :: { checkTypes :: Boolean, env :: Array Any } -> ((String, StrMap (Array TypeClass), Array Type, Function) -> Function)\n' +
+             '          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n' +
+             '                               1\n' +
+             '\n' +
+             '1)  true :: Boolean\n' +
+             '\n' +
+             'The value at position 1 is not a member of ‘{ checkTypes :: Boolean, env :: Array Any }’.\n'
+    );
+  });
+
+
   it('returns a function whose length matches that of given list', function() {
     eq($0.length, 0);
     eq($1.length, 1);
